@@ -1,1 +1,58 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@theme {
+  --color-charcoal: #1A1D21;
+  --color-asphalt: #2C3038;
+  --color-asphalt-light: #3A3F48;
+  --color-sunset: #F2994A;
+  --color-sunset-dark: #D9782E;
+  --color-cream: #F7F5F2;
+  --color-sand: #EDE8E0;
+  --color-sage: #8B9D83;
+  --color-sage-dark: #6F8067;
+  --color-clay: #C2543B;
+
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background-color: var(--color-sunset);
+  color: white;
+}
+
+/* Custom scrollbar for horizontal chip rows */
+.chip-scroll::-webkit-scrollbar {
+  height: 0px;
+}
+
+/* Focus visibility for accessibility */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-sunset);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -52,6 +52,14 @@ def update_category(
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
+    if category_in.name is not None and category_in.name != category.name:
+        existing = db.query(VehicleCategory).filter(
+            VehicleCategory.name == category_in.name,
+            VehicleCategory.id != category_id,
+        ).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Category name already exists")
+
     if category_in.name is not None:
         category.name = category_in.name
     if category_in.description is not None:

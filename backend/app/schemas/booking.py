@@ -9,6 +9,13 @@ class BookingCreate(BaseModel):
     start_date: date
     end_date: date
 
+    @field_validator("start_date")
+    @classmethod
+    def start_not_in_past(cls, v):
+        if v < date.today():
+            raise ValueError("start_date cannot be in the past")
+        return v
+
     @field_validator("end_date")
     @classmethod
     def end_after_start(cls, v, info):

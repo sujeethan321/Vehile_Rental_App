@@ -3,6 +3,15 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { getVehicleById } from "../api/vehicles";
 import { useAuth } from "../context/AuthContext";
 
+function Spec({ label, value }) {
+  return (
+    <div className="border-b border-charcoal/8 py-3 flex justify-between text-sm">
+      <span className="text-charcoal/45">{label}</span>
+      <span className="font-medium text-charcoal capitalize">{value}</span>
+    </div>
+  );
+}
+
 function VehicleDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -28,63 +37,96 @@ function VehicleDetails() {
     navigate(`/book/${id}`);
   };
 
-  if (loading) return <div className="p-8">Loading...</div>;
-  if (error) return <div className="p-8 text-red-500">{error}</div>;
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="h-96 bg-sand rounded-2xl animate-pulse"></div>
+      </div>
+    );
+  }
+  if (error) return <div className="max-w-7xl mx-auto px-6 py-16 text-clay">{error}</div>;
   if (!vehicle) return null;
 
   const isBookable = vehicle.vehicle_status === "active" && vehicle.availability_status === "available";
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <Link to="/vehicles" className="text-blue-600 text-sm mb-4 inline-block">← Back to vehicles</Link>
+    <div className="min-h-screen bg-cream">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <Link to="/vehicles" className="inline-flex items-center gap-1.5 text-charcoal/50 hover:text-charcoal text-sm mb-6 transition-colors">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          Back to fleet
+        </Link>
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden md:flex">
-        {vehicle.image_url ? (
-          <img
-            src={vehicle.image_url}
-            alt={vehicle.name}
-            className="w-full md:w-1/2 h-72 object-cover"
-          />
-        ) : (
-          <div className="w-full md:w-1/2 h-72 bg-gray-200 flex items-center justify-center text-gray-400">
-            No Image
+        <div className="grid lg:grid-cols-5 gap-10">
+          {/* Image + info */}
+          <div className="lg:col-span-3">
+            <div className="rounded-2xl overflow-hidden bg-sand h-80 md:h-[26rem] mb-6">
+              {vehicle.image_url ? (
+                <img src={vehicle.image_url} alt={vehicle.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-charcoal/20">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 13l1.5-4.5A2 2 0 0 1 6.4 7h11.2a2 2 0 0 1 1.9 1.5L21 13" stroke="currentColor" strokeWidth="1.5"/>
+                    <rect x="2.5" y="13" width="19" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            <p className="text-sunset-dark text-sm font-medium mb-1">{vehicle.brand}</p>
+            <h1 className="font-display text-3xl font-semibold mb-4">{vehicle.name}</h1>
+
+            <div className="grid sm:grid-cols-2 gap-x-8">
+              <div>
+                <Spec label="Model" value={vehicle.model} />
+                <Spec label="Year" value={vehicle.manufacturing_year} />
+                <Spec label="Transmission" value={vehicle.transmission} />
+                <Spec label="Fuel type" value={vehicle.fuel_type} />
+              </div>
+              <div>
+                <Spec label="Seats" value={vehicle.seats} />
+                <Spec label="Color" value={vehicle.color || "N/A"} />
+                <Spec label="Mileage" value={vehicle.mileage != null ? `${vehicle.mileage} km` : "N/A"} />
+                <Spec label="Registration" value={vehicle.registration_number} />
+              </div>
+            </div>
           </div>
-        )}
 
-        <div className="p-6 md:w-1/2">
-          <h1 className="text-2xl font-bold mb-2">{vehicle.name}</h1>
-          <p className="text-gray-500 mb-4">{vehicle.brand} · {vehicle.model} · {vehicle.manufacturing_year}</p>
+          {/* Booking card */}
+          <div className="lg:col-span-2">
+            <div className="sticky top-24 bg-white border border-charcoal/10 rounded-2xl p-6">
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="font-display text-3xl font-semibold">Rs. {vehicle.price_per_day}</span>
+                <span className="text-charcoal/40 text-sm">/ day</span>
+              </div>
 
-          <p className="text-3xl font-bold text-blue-600 mb-4">
-            Rs. {vehicle.price_per_day} <span className="text-base font-normal text-gray-500">/ day</span>
-          </p>
+              <span
+                className={`inline-block text-xs font-medium px-2.5 py-1 rounded-full mb-6 ${
+                  isBookable ? "bg-sage/15 text-sage-dark" : "bg-charcoal/10 text-charcoal/50"
+                }`}
+              >
+                {isBookable ? "Available now" : `Unavailable — ${vehicle.availability_status}`}
+              </span>
 
-          <div className="grid grid-cols-2 gap-3 text-sm mb-6">
-            <div><span className="text-gray-500">Transmission:</span> <span className="capitalize font-medium">{vehicle.transmission}</span></div>
-            <div><span className="text-gray-500">Fuel Type:</span> <span className="capitalize font-medium">{vehicle.fuel_type}</span></div>
-            <div><span className="text-gray-500">Seats:</span> <span className="font-medium">{vehicle.seats}</span></div>
-            <div><span className="text-gray-500">Color:</span> <span className="font-medium">{vehicle.color || "N/A"}</span></div>
-            <div><span className="text-gray-500">Mileage:</span> <span className="font-medium">{vehicle.mileage ?? "N/A"} km</span></div>
-            <div><span className="text-gray-500">Registration:</span> <span className="font-medium">{vehicle.registration_number}</span></div>
+              <button
+                onClick={handleBookNow}
+                disabled={!isBookable}
+                className={`w-full py-3.5 rounded-full font-semibold transition-colors ${
+                  isBookable
+                    ? "bg-sunset hover:bg-sunset-dark text-charcoal"
+                    : "bg-charcoal/10 text-charcoal/35 cursor-not-allowed"
+                }`}
+              >
+                {isBookable ? "Book this vehicle" : "Not available"}
+              </button>
+
+              {!isAuthenticated && isBookable && (
+                <p className="text-xs text-charcoal/40 text-center mt-3">
+                  You'll be asked to log in first.
+                </p>
+              )}
+            </div>
           </div>
-
-          <span className={`inline-block mb-4 text-sm px-3 py-1 rounded ${
-            isBookable ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-          }`}>
-            {isBookable ? "Available for booking" : `Unavailable (${vehicle.availability_status})`}
-          </span>
-
-          <button
-            onClick={handleBookNow}
-            disabled={!isBookable}
-            className={`w-full py-3 rounded font-semibold ${
-              isBookable
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            {isBookable ? "Book Now" : "Not Available"}
-          </button>
         </div>
       </div>
     </div>

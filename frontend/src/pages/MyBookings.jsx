@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getMyBookings } from "../api/bookings";
 
-const statusColors = {
+const statusStyles = {
   pending: "bg-yellow-100 text-yellow-700",
   confirmed: "bg-blue-100 text-blue-700",
-  active: "bg-green-100 text-green-700",
-  completed: "bg-gray-100 text-gray-600",
-  cancelled: "bg-red-100 text-red-700",
+  active: "bg-sage/20 text-sage-dark",
+  completed: "bg-charcoal/10 text-charcoal/50",
+  cancelled: "bg-clay/10 text-clay",
 };
 
 function MyBookings() {
@@ -17,43 +17,62 @@ function MyBookings() {
 
   useEffect(() => {
     getMyBookings()
-      .then((res) => setBookings(res.data))
+      .then((res) => setBookings(res.data.sort((a, b) => b.id - a.id)))
       .catch(() => setError("Failed to load bookings"))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="p-8">Loading...</div>;
-  if (error) return <div className="p-8 text-red-500">{error}</div>;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold mb-6">My Bookings</h1>
+    <div className="min-h-screen bg-cream">
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        <h1 className="font-display text-3xl font-semibold mb-1">My Trips</h1>
+        <p className="text-charcoal/50 mb-8">Everything you've booked, in one place.</p>
 
-      {bookings.length === 0 && (
-        <p className="text-gray-500">You have no bookings yet. <Link to="/vehicles" className="text-blue-600">Browse vehicles</Link></p>
-      )}
+        {loading && (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-24 bg-sand rounded-2xl animate-pulse"></div>
+            ))}
+          </div>
+        )}
 
-      <div className="space-y-4">
-        {bookings.map((booking) => (
-          <Link
-            to={`/my-bookings/${booking.id}`}
-            key={booking.id}
-            className="block bg-white rounded-lg shadow p-4 hover:shadow-md transition"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-semibold">Booking #{booking.id}</p>
-                <p className="text-sm text-gray-500">
-                  {booking.start_date} → {booking.end_date} ({booking.rental_days} day{booking.rental_days > 1 ? "s" : ""})
-                </p>
-                <p className="text-blue-600 font-bold mt-1">Rs. {booking.total_amount}</p>
+        {error && <p className="text-clay">{error}</p>}
+
+        {!loading && !error && bookings.length === 0 && (
+          <div className="text-center py-16 bg-white border border-charcoal/10 rounded-2xl">
+            <p className="text-charcoal/50 mb-4">You haven't booked anything yet.</p>
+            <Link to="/vehicles" className="inline-block bg-sunset hover:bg-sunset-dark text-charcoal font-semibold px-6 py-2.5 rounded-full transition-colors">
+              Browse the fleet
+            </Link>
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {bookings.map((booking) => (
+            <Link
+              to={`/my-bookings/${booking.id}`}
+              key={booking.id}
+              className="block bg-white border border-charcoal/10 hover:border-charcoal/25 rounded-2xl p-5 transition-colors"
+            >
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <p className="font-display font-semibold mb-1">Booking #{booking.id}</p>
+                  <p className="text-sm text-charcoal/50">
+                    {booking.start_date} &rarr; {booking.end_date}
+                    <span className="text-charcoal/30"> &middot; {booking.rental_days} day{booking.rental_days > 1 ? "s" : ""}</span>
+                  </p>
+                </div>
+                <span className={`text-xs font-medium px-2.5 py-1 rounded-full capitalize shrink-0 ${statusStyles[booking.booking_status]}`}>
+                  {booking.booking_status}
+                </span>
               </div>
-              <span className={`text-xs px-2 py-1 rounded capitalize ${statusColors[booking.booking_status] || "bg-gray-100"}`}>
-                {booking.booking_status}
-              </span>
-            </div>
-          </Link>
-        ))}
+              <div className="flex justify-between items-end mt-3 pt-3 border-t border-charcoal/8">
+                <span className="font-display font-semibold text-lg">Rs. {booking.total_amount}</span>
+                <span className="text-sunset-dark text-sm font-medium">Details</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

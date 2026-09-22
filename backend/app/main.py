@@ -2,8 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app import models
 from app.routers import auth, vehicle_category, vehicle, booking
+from app.routers import auth, vehicle_category, vehicle, booking, dashboard
 
 app = FastAPI(title="Vehicle Rental Management API")
+
+app.include_router(dashboard.router)
 
 app.add_middleware(
     CORSMiddleware,

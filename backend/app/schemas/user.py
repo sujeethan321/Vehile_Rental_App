@@ -36,3 +36,8 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    
+    
+# ---- Admin: update account status ----
+class UserStatusUpdate(BaseModel):
+    account_status: AccountStatusEnum
